@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { PermissionsAndroid, Platform, StyleSheet, Text, View } from 'react-native';
 import Camera from 'react-native-camera';
 
 const styles = StyleSheet.create({
@@ -30,10 +30,20 @@ export default class App extends Component {
   }
 
   async cameraAuthorize() {
-    const checkAuthorization = Camera.checkDeviceAuthorizationStatus;
-    if (checkAuthorization) {
-      const isAuthorized = await checkAuthorization();
-      this.setState({ isAuthorized, isAuthorizationChecked: true });
+    if (Platform.OS === 'ios') {
+      const checkAuthorization = Camera.checkDeviceAuthorizationStatus;
+      if (checkAuthorization) {
+        const isAuthorized = await checkAuthorization();
+        this.setState({ isAuthorized, isAuthorizationChecked: true });
+      }
+    } else if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
+      this.setState({
+        isAuthorized: granted === PermissionsAndroid.RESULTS.GRANTED,
+        isAuthorizationChecked: true,
+      });
+    } else {
+      this.setState({ isAuthorized: true, isAuthorizationChecked: true });
     }
   }
 
@@ -46,7 +56,7 @@ export default class App extends Component {
       );
     }
     if (!this.state.isAuthorizationChecked) {
-      return <Text style={styles.emphasis}>初回チェック中</Text>;
+      return <Text style={styles.emphasis}>権限チェック処理中</Text>;
     }
     return <Text style={styles.emphasis}>カメラの使用が許可されていません</Text>;
   }
