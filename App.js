@@ -31,7 +31,7 @@ export default class App extends Component {
 
   async cameraAuthorize() {
     if (Platform.OS === 'ios') {
-      const checkAuthorization = Camera.checkDeviceAuthorizationStatus;
+      const checkAuthorization = Camera.checkVideoAuthorizationStatus;
       if (checkAuthorization) {
         const isAuthorized = await checkAuthorization();
         this.setState({ isAuthorized, isAuthorizationChecked: true });
